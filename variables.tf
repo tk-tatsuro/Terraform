@@ -44,14 +44,6 @@ variable "connect_athena_password" {
 variable "connect_athena_username" {
   type = string
 }
-variable "connect_rds_password" {
-  type = string
-}
-variable "connect_rds_username" {
-  type = string
-}
-
-
 variable "glue_catalog_database_name" {
   type = string
 }
@@ -67,7 +59,13 @@ variable "athena_table_name" {
 variable "log_bucket_name" {
   type = string
 }
-# variable "glue_job_role_arn" {
-# }
 variable "glue_job_python_bucket" {
 }
+
+## Change from RDS to S3
+# variable "connect_rds_password" {
+#   type = string
+# }
+# variable "connect_rds_username" {
+#   type = string
+# }

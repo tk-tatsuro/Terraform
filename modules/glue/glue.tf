@@ -1,4 +1,139 @@
 # ----------------------------------
+# IAM role
+# ----------------------------------
+resource "aws_iam_role" "role_glue" {
+  name               = "role_glue"
+  assume_role_policy = <<-EOF
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Service": "glue.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    }
+  EOF
+}
+# ----------------------------------
+# IAM
+# ----------------------------------
+resource "aws_iam_instance_profile" "instance_profile_glue" {
+  name = "instance_profile_glue"
+  role = aws_iam_role.role_glue.name
+}
+# ----------------------------------
+# IAM policy
+# ----------------------------------
+resource "aws_iam_role_policy" "role_policy_glue" {
+  name = "role_policy_glue"
+  role = aws_iam_role.role_glue.id
+
+  policy = <<-EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:*",
+                "s3:GetBucketLocation",
+                "s3:ListBucket",
+                "s3:ListAllMyBuckets",
+                "s3:GetBucketAcl",
+                "ec2:DescribeVpcEndpoints",
+                "ec2:DescribeRouteTables",
+                "ec2:CreateNetworkInterface",
+                "ec2:DeleteNetworkInterface",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcAttribute",
+                "iam:ListRolePolicies",
+                "iam:GetRole",
+                "iam:GetRolePolicy",
+                "cloudwatch:PutMetricData"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:CreateBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::aws-glue-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::aws-glue-*/*",
+                "arn:aws:s3:::*/*aws-glue-*/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::crawler-public*",
+                "arn:aws:s3:::aws-glue-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:/aws-glue/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateTags",
+                "ec2:DeleteTags"
+            ],
+            "Condition": {
+                "ForAllValues:StringEquals": {
+                    "aws:TagKeys": [
+                        "aws-glue-service-resource"
+                    ]
+                }
+            },
+            "Resource": [
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:*:*:instance/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "*"
+        }
+    ]
+}
+  EOF
+}
+
+
+# ----------------------------------
 # Data catalog create
 # ----------------------------------
 resource "aws_glue_catalog_database" "database_glue_test" {
@@ -19,21 +154,18 @@ resource "aws_glue_catalog_database" "glue_catalog_database_name" {
 # ----------------------------------
 resource "aws_glue_job" "glue_job_test_missing" {
   name     = "glue_job_test_missing"
-  role_arn = aws_iam_role.role_glue_test.arn
+  role_arn = aws_iam_role.role_glue.arn
 
   command {
     script_location = "s3://${var.glue_job_python_bucket}/python_shell/missing_proc.py"
     python_version  = 3
   }
-
   glue_version      = "2.0"
   number_of_workers = 10
   worker_type       = "G.1X"
-
-  # execute arg
+  # Execute arg
   # default_arguments = {
-  #   "--BUCKET_NAME"     = var.s3_bucket_2
-  #   "--SRC_OBJECT_PATH" = "${var.s3_bucket2_path}/pure/titanic_train.csv"
+  #   "--"     = var.
   # }
 }
 
@@ -43,21 +175,18 @@ resource "aws_glue_job" "glue_job_test_missing" {
 # ----------------------------------
 resource "aws_glue_job" "glue_job_test_cleansing" {
   name     = "glue_job_test_cleansing"
-  role_arn = aws_iam_role.role_glue_test.arn
+  role_arn = aws_iam_role.role_glue.arn
 
   command {
     script_location = "s3://${var.glue_job_python_bucket}/python_shell/cleansing_proc.py"
     python_version  = 3
   }
-
-   glue_version      = "2.0"
-   number_of_workers = 10
-   worker_type       = "G.1X"
-
-  # execute arg
+  glue_version      = "2.0"
+  number_of_workers = 10
+  worker_type       = "G.1X"
+  # Execute arg
   # default_arguments = {
-  #   "--BUCKET_NAME"     = var.s3_bucket_2
-  #   "--SRC_OBJECT_PATH" = "${var.s3_bucket2_path}/missing_proc/titanic_train.csv"
+  #   "--"     = var.
   # }
 }
 
@@ -159,7 +288,7 @@ resource "aws_glue_catalog_table" "titanic_train" {
   }
 }
 
-
+## change from RDS to S3
 # ----------------------------------
 # Connection to RDS
 # ----------------------------------
@@ -176,163 +305,16 @@ resource "aws_glue_catalog_table" "titanic_train" {
 #     subnet_id              = aws_subnet.subnet1_glue_test.id
 #   }
 # }
-
-
 # ----------------------------------
-# Crawler conf
+# Crawler
 # ----------------------------------
 # resource "aws_glue_crawler" "crawler_glue_test" {
 #   database_name = aws_glue_catalog_database.database_glue_test.name
 #   name          = "database_glue_test"
-#   role          = aws_iam_role.role_glue_test.arn
+#   role          = aws_iam_role.role_glue.arn
 
 #   jdbc_target {
 #     connection_name = aws_glue_connection.rds_connection_glue_test.name
 #     path            = "testdb/%"
 #   }
 # }
-
-
-
-## IAM
-# ----------------------------------
-# IAM
-# ----------------------------------
-resource "aws_iam_instance_profile" "role_profile_glue_test" {
-  name = "instance_role"
-  role = aws_iam_role.role_glue_test.name
-}
-
-
-# ----------------------------------
-# IAM role
-# ----------------------------------
-resource "aws_iam_role" "role_glue_test" {
-  name               = "role_glue_test"
-  assume_role_policy = <<-EOF
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Principal": {
-            "Service": "glue.amazonaws.com"
-          },
-          "Action": "sts:AssumeRole"
-        }
-      ]
-    }
-  EOF
-}
-
-# data "aws_iam_role" "role_glue_test" {
-#     role_arn = ${aws_iam_role.role_glue_test.id}
-# }
-
-
-# ----------------------------------
-# IAM policy
-# ----------------------------------
-resource "aws_iam_role_policy" "role_policy_glue_test" {
-  name = "role_policy_glue_test"
-  role = aws_iam_role.role_glue_test.id
-
-  policy = <<-EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "glue:*",
-                "s3:GetBucketLocation",
-                "s3:ListBucket",
-                "s3:ListAllMyBuckets",
-                "s3:GetBucketAcl",
-                "ec2:DescribeVpcEndpoints",
-                "ec2:DescribeRouteTables",
-                "ec2:CreateNetworkInterface",
-                "ec2:DeleteNetworkInterface",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DescribeSecurityGroups",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeVpcAttribute",
-                "iam:ListRolePolicies",
-                "iam:GetRole",
-                "iam:GetRolePolicy",
-                "cloudwatch:PutMetricData"
-            ],
-            "Resource": [
-                "*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:CreateBucket"
-            ],
-            "Resource": [
-                "arn:aws:s3:::aws-glue-*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::aws-glue-*/*",
-                "arn:aws:s3:::*/*aws-glue-*/*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::crawler-public*",
-                "arn:aws:s3:::aws-glue-*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": [
-                "arn:aws:logs:*:*:/aws-glue/*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:CreateTags",
-                "ec2:DeleteTags"
-            ],
-            "Condition": {
-                "ForAllValues:StringEquals": {
-                    "aws:TagKeys": [
-                        "aws-glue-service-resource"
-                    ]
-                }
-            },
-            "Resource": [
-                "arn:aws:ec2:*:*:network-interface/*",
-                "arn:aws:ec2:*:*:security-group/*",
-                "arn:aws:ec2:*:*:instance/*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": "*"
-        }
-    ]
-}
-  EOF
-}

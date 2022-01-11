@@ -26,7 +26,6 @@ resource "aws_athena_workgroup" "glue_test_athena_workgroup" {
 # Athena query
 # ----------------------------------
 data "template_file" "create_table_sql" {
-  # template = file("${path.module}/src/queries/create_table.sql")
   template = file("./src/queries/create_table.sql")
   vars = {
     athena_database_name = aws_athena_database.athena_glue_test.name
@@ -36,7 +35,6 @@ data "template_file" "create_table_sql" {
 }
 resource "aws_athena_named_query" "create_table" {
   name        = "Create table"
-  description = "テーブル作成"
   workgroup   = aws_athena_workgroup.glue_test_athena_workgroup.id
   database    = aws_athena_database.athena_glue_test.name
   query       = data.template_file.create_table_sql.rendered

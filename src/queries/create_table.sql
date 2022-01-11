@@ -1,5 +1,4 @@
--- select titanic train data
-CREATE EXTERNAL TABLE IF NOT EXISTS test_dwh.titanic_train (
+CREATE EXTERNAL TABLE IF NOT EXISTS testdwh_athena3.titanic_train (
     `PassengerId` string,
     `Survived` string,
     `Pclass` string,
@@ -20,7 +19,7 @@ WITH SERDEPROPERTIES (
     'integerization.format' = ',',
     'field.delim' = ','
 )
-LOCATION 's3://aws-terraform-dev-private-bucket-855/athena/outlier_proc/'
+LOCATION 's3://terraform-development-private-bucket-855/athena/cleansing_proc/'
 TBLPROPERTIES (
     'has_encrypted_data'='false',
     'skip.header.line.count'='1',
