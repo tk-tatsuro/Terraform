@@ -74,8 +74,12 @@ module "athena" {
 # sfn
 # ----------------------------------
 module "sfn" {
-  source     = "./modules/sfn"
-  region     = var.region
-  enviroment = var.enviroment
-  project    = var.project
+  source                = "./modules/sfn"
+  region                = var.region
+  enviroment            = var.enviroment
+  project               = var.project
+  lambda_test_arn       = var.lambda_test_arn
+  lambda_log_group_arn  = var.lambda_log_group_arn
+  log_export_bucket_arn = var.log_export_bucket_arn
+  sfn_arn               = var.sfn_arn
 }

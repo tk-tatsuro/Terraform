@@ -90,12 +90,6 @@ resource "aws_s3_bucket_object" "s3-private-bucket3-object4" {
   bucket = aws_s3_bucket.s3-private-bucket3.id
   force_destroy = true
 }
-# Create directry
-resource "aws_s3_bucket_object" "s3-private-bucket3-object11" {
-  key    = "athena_result/"
-  bucket = aws_s3_bucket.s3-private-bucket3.id
-  force_destroy = true
-}
 # Access block
 resource "aws_s3_bucket_public_access_block" "s3-private-bucket3" {
   bucket                  = aws_s3_bucket.s3-private-bucket3.id

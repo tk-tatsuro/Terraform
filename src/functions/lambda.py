@@ -1,32 +1,22 @@
-import datetime
-import time
 import boto3
-
-lambda_name = 'lambda_test'
-log_group_name = '/aws/lambda/' + lambda_name
-s3_bucket_name = 'terraform-development-private-bucket-858'
-s3_prefix = lambda_name + '/%s' % (datetime.date.today() - datetime.timedelta(days = 1))
-
-def get_from_timestamp():
-    today = datetime.date.today()
-    yesterday = datetime.datetime.combine(today - datetime.timedelta(days = 1), datetime.time(0, 0, 0))
-    timestamp = time.mktime(yesterday.timetuple())
-    return int(timestamp)
-
-def get_to_timestamp(from_ts):
-    return from_ts + (60 * 60 * 24) - 1
+import datetime
+import collections
+from datetime import datetime, date, time, timedelta
 
 def handler(event, context):
-    from_ts = get_from_timestamp()
-    to_ts = get_to_timestamp(from_ts)
-    print('Timestamp: from_ts %s, to_ts %s' % (from_ts, to_ts))
+    yesterday = datetime.combine(date.today() - timedelta(1), time())
+    today = datetime.combine(date.today(), time())
+    unix_start = datetime(2022,1,1)
 
-    client = boto3.client('logs')
+    client = boto3.client("logs")
     response = client.create_export_task(
-        logGroupName      = log_group_name,
-        fromTime          = from_ts * 1000,
-        to                = to_ts * 1000,
-        destination       = s3_bucket_name,
-        destinationPrefix = s3_prefix
+        logGroupName = "/aws-glue/jobs/error",                                          # Group name from which logs are saved
+        fromTime = int((yesterday - unix_start).total_seconds() * 1000),                # UTC(miri sec) 2022-01-01 00:00.01
+        to = int((today - unix_start).total_seconds() * 1000),                          # UNIX time Now
+        destination = "terraform-development-private-bucket-858",                       # Bucket name where logs are saved
+        destinationPrefix = 'Athena-result-{}'.format(yesterday.strftime("%Y-%m-%d"))   # Prefix to save the logs
     )
-    return response
+    return {
+        "status": "completed",
+        "response": response
+    }

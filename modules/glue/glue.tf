@@ -18,9 +18,6 @@ resource "aws_iam_role" "role_glue" {
     }
   EOF
 }
-# ----------------------------------
-# IAM
-# ----------------------------------
 resource "aws_iam_instance_profile" "instance_profile_glue" {
   name = "instance_profile_glue"
   role = aws_iam_role.role_glue.name
@@ -28,6 +25,11 @@ resource "aws_iam_instance_profile" "instance_profile_glue" {
 # ----------------------------------
 # IAM policy
 # ----------------------------------
+resource "aws_iam_policy_attachment" "glue_lambda_exe" {
+  name       = "AWSLambda_FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+  roles      = ["${aws_iam_role.role_glue.name}"]
+}
 resource "aws_iam_role_policy" "role_policy_glue" {
   name = "role_policy_glue"
   role = aws_iam_role.role_glue.id
@@ -97,7 +99,13 @@ resource "aws_iam_role_policy" "role_policy_glue" {
             "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "logs:PutLogEvents",
+                "logs:CreateExportTask",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:CreateExportTask",
+                "logs:DescribeLogGroups"
             ],
             "Resource": [
                 "arn:aws:logs:*:*:/aws-glue/*"
