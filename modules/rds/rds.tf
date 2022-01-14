@@ -11,7 +11,6 @@
 #   }
 # }
 
-
 # # ----------------------------------
 # # Database instance
 # # ----------------------------------
@@ -22,14 +21,13 @@
 #   engine                 = "postgres"
 #   engine_version         = "11.12"
 #   instance_class         = "db.t3.micro"
-#   name                   = var.rds_db_name
-#   username               = var.rds_username
-#   password               = var.rds_password
+#   name                   = "${var.rds_db_name}"
+#   username               = "${var.rds_username}"
+#   password               = "${var.rds_password}"
 #   vpc_security_group_ids = ["${aws_security_group.securty_group_glue_test.id}"]
 #   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_glue_test.id
 #   skip_final_snapshot    = true
 # }
-
 
 # # ----------------------------------
 # # Variables
