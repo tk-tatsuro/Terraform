@@ -13,8 +13,8 @@ def handler(event, context):
         logGroupName = "/aws-glue/jobs/error",                                          # Group name from which logs are saved
         fromTime = int((yesterday - unix_start).total_seconds() * 1000),                # UTC(miri sec) 2022-01-01 00:00.01
         to = int((today - unix_start).total_seconds() * 1000),                          # UNIX time Now
-        destination = "terraform-development-private-bucket-858",                       # Bucket name where logs are saved
-        destinationPrefix = 'Athena-result-{}'.format(yesterday.strftime("%Y-%m-%d"))   # Prefix to save the logs
+        destination = "terraform-development-private-bucket-105",                       # Bucket name where logs are saved
+        destinationPrefix = 'Glue-result-{}'.format(yesterday.strftime("%Y-%m-%d"))     # Prefix to save the logs
     )
     return {
         "status": "completed",

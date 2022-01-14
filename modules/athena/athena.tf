@@ -16,7 +16,7 @@ resource "aws_athena_workgroup" "glue_test_athena_workgroup" {
     enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = false
     result_configuration {
-      output_location = "s3://${var.athena_result_bucket_name}/athena-result/cleansing_proc/"
+      output_location = "s3://terraform-development-private-bucket-102/athena_result/cleansing_proc/"
     }
   }
 }

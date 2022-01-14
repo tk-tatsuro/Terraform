@@ -1,79 +1,4 @@
 # ----------------------------------
-# S3 private bucket for Lambda logs
-# ----------------------------------
-resource "aws_s3_bucket" "s3-private-bucket6" {
-  bucket = "${var.project}-${var.enviroment}-private-bucket-858"
-  acl    = "private"
-  # Manege version of S3 source
-  versioning {
-    enabled = false
-  }
-  # Encryption
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-  # Delete rule
-  lifecycle {
-    prevent_destroy = false
-  }
-}
-# Create directry
-resource "aws_s3_bucket_object" "s3-private-bucket6-object" {
-  key    = "lambda_logs/"
-  bucket = aws_s3_bucket.s3-private-bucket6.id
-  force_destroy = true
-}
-# Access block
-resource "aws_s3_bucket_public_access_block" "s3-private-bucket6" {
-  bucket                  = aws_s3_bucket.s3-private-bucket6.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-data "aws_iam_policy_document" "s3" {
-  statement {
-    sid     = "SFNAssumeRolePolicy"
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["states.${var.region}.amazonaws.com"]
-    }
-  }
-}
-resource "aws_iam_role" "s3" {
-  name               = "${var.enviroment}-s3-role"
-  assume_role_policy = "${data.aws_iam_policy_document.s3.json}"
-}
-resource "aws_iam_role_policy" "role_policy_s3" {
-  name = "role_policy_s3"
-  role = aws_iam_role.s3.id
-  policy = <<-EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:GetBucketAcl",
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "s3:PutObject",
-            "Resource": "*"
-        }
-    ]
-}
-  EOF
-}
-
-
-# ----------------------------------
 # Step Functions policy
 # ----------------------------------
 data "aws_iam_policy_document" "sfn" {
@@ -100,6 +25,11 @@ resource "aws_iam_policy_attachment" "sfn" {
 resource "aws_iam_policy_attachment" "sfn_lambda_exe" {
   name       = "AWSLambda_FullAccess"
   policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+  roles      = ["${aws_iam_role.sfn.name}"]
+}
+resource "aws_iam_policy_attachment" "sfn_lambda_ex" {
+  name       = "AWSLambdaExecute"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
   roles      = ["${aws_iam_role.sfn.name}"]
 }
 resource "aws_iam_policy_attachment" "log_group" {
@@ -141,6 +71,16 @@ resource "aws_iam_role_policy" "role_policy_sfn" {
             "Effect": "Allow",
             "Action": "cloudwatch:*",
             "Resource": "${var.log_export_bucket_arn}"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeAsync",
+                "lambda:InvokeFunction"
+            ],
+            "Resource": [
+                "*"
+            ]
         }
     ]
 }
@@ -245,7 +185,7 @@ data "archive_file" "initial_lambda_package" {
 
 # Upload Lambda files to S3
 resource "aws_s3_bucket_object" "lambda_file" {
-  bucket = "${aws_s3_bucket.s3-private-bucket6.id}"
+  bucket = "${var.s3_private_bucket06}"
   key    = "initial.zip"
   source = "./src/.temp_files/lambda.zip"
 }
@@ -259,7 +199,7 @@ resource "aws_lambda_function" "lambda_test" {
   runtime           = "python3.8"
   timeout           = 60
   publish           = true
-  s3_bucket         = "${aws_s3_bucket.s3-private-bucket6.id}"
+  s3_bucket         = "${var.s3_private_bucket06}"
   s3_key            = "${aws_s3_bucket_object.lambda_file.id}"
 }
 
@@ -327,7 +267,7 @@ resource "aws_cloudwatch_log_group" "log_group_for_sfn" {
 # ----------------------------------
 resource "aws_cloudwatch_event_rule" "cloudwatch_lambda_test_rule" {
     name                = "cloudwatch-lambda-test-rule"
-    schedule_expression = "cron(0/5 * * * ? *)"
+    schedule_expression = "cron(0/60000 * * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "cloudwatch_lambda_test_target" {
     rule      = "${aws_cloudwatch_event_rule.cloudwatch_lambda_test_rule.name}"

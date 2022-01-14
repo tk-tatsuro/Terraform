@@ -61,6 +61,18 @@ variable "log_bucket_name" {
 }
 variable "glue_job_python_bucket" {
 }
+variable "lambda_test_arn" {
+}
+variable "lambda_log_group_arn" {
+}
+variable "log_export_bucket_arn" {
+}
+variable "sfn_arn" {
+}
+variable "glue_job_bucket" {
+}
+variable "python_dir_name" {
+}
 
 ## Change from RDS to S3
 # variable "connect_rds_password" {

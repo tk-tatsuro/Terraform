@@ -35,6 +35,7 @@ module "S3" {
   source     = "./modules/s3"
   project    = var.project
   enviroment = var.enviroment
+  region     = var.region
 }
 
 ## ETL
@@ -51,6 +52,8 @@ module "glue" {
   glue_job_python_bucket     = var.glue_job_python_bucket
   s3_bucket_2                = var.s3_bucket_2
   s3_bucket2_path            = var.s3_bucket2_path
+  glue_job_bucket            = var.glue_job_bucket
+  python_dir_name            = "var.python_dir_name"
   # connect_rds_password       = var.connect_rds_password
   # connect_rds_username       = var.connect_rds_username
 }
@@ -82,4 +85,5 @@ module "sfn" {
   lambda_log_group_arn  = var.lambda_log_group_arn
   log_export_bucket_arn = var.log_export_bucket_arn
   sfn_arn               = var.sfn_arn
+  s3_private_bucket06   = module.S3.aws_s3_bucket06
 }

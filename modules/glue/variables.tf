@@ -21,7 +21,10 @@ variable "connect_athena_username" {
 }
 variable "athena_result_bucket_name" {
 }
-
+variable "glue_job_bucket" {
+}
+variable "python_dir_name" {
+}
 ## Change from RDS to S3
 # variable "connect_rds_password" {
 #   type = string

@@ -19,7 +19,7 @@ WITH SERDEPROPERTIES (
     'integerization.format' = ',',
     'field.delim' = ','
 )
-LOCATION 's3://terraform-development-private-bucket-855/athena/cleansing_proc/'
+LOCATION 's3://terraform-development-private-bucket-102/athena/cleansing_proc/'
 TBLPROPERTIES (
     'has_encrypted_data'='false',
     'skip.header.line.count'='1',

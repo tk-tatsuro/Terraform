@@ -147,82 +147,12 @@ resource "aws_iam_role_policy" "role_policy_glue" {
 resource "aws_glue_catalog_database" "database_glue_test" {
   name = "database_glue_test"
 }
-
-
 # ----------------------------------
 # Data catalog database for athena
 # ----------------------------------
 resource "aws_glue_catalog_database" "glue_catalog_database_name" {
   name = var.glue_catalog_database_name
 }
-
-
-# ----------------------------------
-# ETL job missing value process
-# ----------------------------------
-resource "aws_glue_job" "glue_job_test_missing" {
-  name     = "glue_job_test_missing"
-  role_arn = aws_iam_role.role_glue.arn
-
-  command {
-    script_location = "s3://${var.glue_job_python_bucket}/python_shell/missing_proc.py"
-    python_version  = 3
-  }
-  glue_version      = "2.0"
-  number_of_workers = 10
-  worker_type       = "G.1X"
-  # Execute arg
-  # default_arguments = {
-  #   "--"     = var.
-  # }
-}
-
-
-# ----------------------------------
-# ETL job cleansing value process
-# ----------------------------------
-resource "aws_glue_job" "glue_job_test_cleansing" {
-  name     = "glue_job_test_cleansing"
-  role_arn = aws_iam_role.role_glue.arn
-
-  command {
-    script_location = "s3://${var.glue_job_python_bucket}/python_shell/cleansing_proc.py"
-    python_version  = 3
-  }
-  glue_version      = "2.0"
-  number_of_workers = 10
-  worker_type       = "G.1X"
-  # Execute arg
-  # default_arguments = {
-  #   "--"     = var.
-  # }
-}
-
-
-# ----------------------------------
-# ETL job workflow
-# ----------------------------------
-resource "aws_glue_workflow" "glue_job_test_workflow" {
-  name = "glue_job_test_workflow"
-}
-
-resource "aws_glue_trigger" "trigger" {
-  name     = "glue_job_test_workflow_start"
-  schedule = "cron(0 16 * * ? *)" // UTC
-  type     = "SCHEDULED"
-
-  workflow_name = aws_glue_workflow.glue_job_test_workflow.name
-
-  actions {
-    job_name = aws_glue_job.glue_job_test_missing.name
-  }
-
-  actions {
-    job_name = aws_glue_job.glue_job_test_cleansing.name
-  }
-}
-
-
 # ----------------------------------
 # Data catalog table for athena
 # ----------------------------------
@@ -232,7 +162,7 @@ resource "aws_glue_catalog_table" "titanic_train" {
   table_type    = "EXTERNAL_TABLE"
 
   storage_descriptor {
-    location      = "s3://${var.athena_result_bucket_name}/athena/cleansing_proc"
+    location      = "s3://${var.glue_job_bucket}/athena/cleansing_proc/"
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
     ser_de_info {
@@ -295,6 +225,70 @@ resource "aws_glue_catalog_table" "titanic_train" {
     type = "string"
   }
 }
+
+
+
+# ----------------------------------
+# ETL job missing value process
+# ----------------------------------
+resource "aws_glue_job" "glue_job_test_missing" {
+  name     = "glue_job_test_missing"
+  role_arn = aws_iam_role.role_glue.arn
+
+
+  command {
+    script_location = "s3://${var.s3_bucket_2}/python_shell/missing_proc.py"
+    python_version  = 3
+  }
+  glue_version      = "2.0"
+  number_of_workers = 10
+  worker_type       = "G.1X"
+  # Execute arg
+  # default_arguments = {
+  #   "--"     = var.
+  # }
+}
+# ----------------------------------
+# ETL job cleansing value process
+# ----------------------------------
+resource "aws_glue_job" "glue_job_test_cleansing" {
+  name     = "glue_job_test_cleansing"
+  role_arn = aws_iam_role.role_glue.arn
+
+  command {
+    script_location = "s3://${var.s3_bucket_2}/python_shell/cleansing_proc.py"
+    python_version  = 3
+  }
+  glue_version      = "2.0"
+  number_of_workers = 10
+  worker_type       = "G.1X"
+  # Execute arg
+  # default_arguments = {
+  #   "--"     = var.
+  # }
+}
+
+
+# ----------------------------------
+# ETL job workflow
+# ----------------------------------
+resource "aws_glue_workflow" "glue_job_test_workflow" {
+  name = "glue_job_test_workflow"
+}
+
+resource "aws_glue_trigger" "trigger" {
+  name     = "glue_job_test_workflow_start"
+  schedule = "cron(0/60000 * * * ? *)"
+  type     = "SCHEDULED"
+  workflow_name = aws_glue_workflow.glue_job_test_workflow.name
+  actions {
+    job_name = aws_glue_job.glue_job_test_missing.name
+  }
+  actions {
+    job_name = aws_glue_job.glue_job_test_cleansing.name
+  }
+}
+
 
 ## change from RDS to S3
 # ----------------------------------

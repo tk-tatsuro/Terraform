@@ -15,9 +15,9 @@
 
 # resource "aws_redshift_cluster" "redshift_glue_test" {
 #   cluster_identifier        = "redshift-glue-test"
-#   database_name             = "testdwh"
-#   master_username           = "testuser"
-#   master_password           = "Test2020"
+#   database_name             = "${var.redshift_database_name}"
+#   master_username           = "${var.redshift_user_name}"
+#   master_password           = "${var.redshift_password}"
 #   node_type                 = "ra3.xlplus"
 #   cluster_type              = "single-node"
 #   publicly_accessible       = false
@@ -35,8 +35,8 @@
 # resource "aws_glue_connection" "redshift_connection_glue_test" {
 #   connection_properties = {
 #     JDBC_CONNECTION_URL = "jdbc:postgresql://${aws_redshift_cluster.redshift_glue_test.endpoint}/testdwh"
-#     PASSWORD            = var.connect_redshift_password
-#     USERNAME            = var.connect_redshift_username
+#     PASSWORD            = ${var.connect_redshift_password}
+#     USERNAME            = ${var.connect_redshift_username}
 #   }
 #   name = "redshift_connection_glue_test"
 #   physical_connection_requirements {

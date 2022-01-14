@@ -7,3 +7,6 @@ variable "project" {
 variable "enviroment" {
   type = string
 }
+variable "region" {
+  type = string
+}
