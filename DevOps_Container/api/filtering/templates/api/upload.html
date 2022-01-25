@@ -1,0 +1,58 @@
+{% include 'api/base_header.html' %}
+{% load static %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="mt-4 pb-4 col-lg-8 mx-auto py-md-5">
+{#    <h1>Please upload files</h1>#}
+</div>
+<div class="pb-4 col-lg-8 mx-auto">
+    <div class="btn-group float-box" role="group">
+        <form class="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p><input type="file" name="excel" value="" required></p>
+            <p><input type="submit" name="btn_upload" value="UPLOAD"></p>
+        </form>
+    </div>
+    <br/><br/><br/>
+    <ul class="list-group">
+      <li class="list-group-item active" aria-current="true">An active item</li>
+      <li class="list-group-item">A second item</li>
+      <li class="list-group-item">A third item</li>
+      <li class="list-group-item">A fourth item</li>
+      <li class="list-group-item">And a fifth one</li>
+    </ul>
+    <br/><br/><br/>
+    <table class="table">
+      <thead class="table-info">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">First</th>
+          <th scope="col">Last</th>
+          <th scope="col">Handle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td>Mark</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td>Jacob</td>
+          <td>Thornton</td>
+          <td>@fat</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td colspan="2">Larry the Bird</td>
+          <td>@twitter</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% include 'api/base_header.html' %}
+{% load static %}
+
+{% block content %}
+</br></br></br></br></br>
+<div class="container grid grid-simple-col-3">
+<div id="chart-01" class="hero starter-chart"></div>
+<div id="chart-02" class="starter-chart"></div>
+<div id="chart-03" class="starter-chart"></div>
+<div id="chart-04" class="starter-chart"></div>
+<div id="chart-05" class="starter-chart"></div>
+</div>
+
+<!-- Project Analytics -->
+<script type="text/stylesheet" href="{% static 'css/dashboard.css' %}"></script>
+<script type="text/javascript" src="{% static 'js/dashboard.js' %}"></script>
+<script>
+function toggleMenu() {
+  const toggleBtn = document.querySelector('.navbar-toggle');
+
+  toggleBtn.addEventListener('click', (e) => {
+    let menu;
+    if (e.currentTarget.dataset.target) {
+      menu = document.querySelector(e.currentTarget.dataset.target);
+    }
+    if (menu) menu.classList.toggle('collapsed');
+  });
+}
+
+window.addEventListener('DOMContentLoaded', toggleMenu);
+</script>
+{% endblock %}
