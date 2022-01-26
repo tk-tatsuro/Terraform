@@ -16,3 +16,12 @@ variable "secret_key" {
 variable "access_key" {
   type = string
 }
+variable "rds_db_name" {
+  type = string
+}
+variable "rds_username" {
+  type = string
+}
+variable "rds_password" {
+  type = string
+}

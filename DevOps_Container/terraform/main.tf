@@ -38,26 +38,25 @@ module "instance" {
 # Execute the network module
 # ----------------------------------
 module "network" {
-  source             = "./modules/network"
-  aws_vpc_cntn       = module.instance.aws_vpc_cntn
-  aws_subnet_a       = module.instance.aws_subnet_a
-  aws_subnet_b       = module.instance.aws_subnet_b
-  aws_s3_bucket_cntn = module.storage.aws_s3_bucket_cntn
+  source              = "./modules/network"
+  aws_vpc_cntn        = module.instance.aws_vpc_cntn
+  aws_public_subnet_a = module.instance.aws_public_subnet_a
+  aws_public_subnet_b = module.instance.aws_public_subnet_b
+  aws_s3_bucket_cntn  = module.storage.aws_s3_bucket_cntn
 }
 
 # ----------------------------------
 # Execute the container module
 # ----------------------------------
 module "container" {
-  source             = "./modules/container"
-  alb_target_group   = module.network.alb_target_group
-  alb_security_group_api = module.network.alb_security_group_api
-  alb_security_group_alb = module.network.alb_security_group_alb
-  aws_subnet_a       = module.instance.aws_subnet_a
-  aws_subnet_b       = module.instance.aws_subnet_b
-  aws_vpc_cntn = module.instance.aws_vpc_cntn
+  source              = "./modules/container"
+  alb_target_group    = module.network.alb_target_group
+  security_group_api  = module.network.security_group_api
+  security_group_alb  = module.network.security_group_alb
+  aws_public_subnet_a = module.instance.aws_public_subnet_a
+  aws_public_subnet_b = module.instance.aws_public_subnet_b
+  aws_vpc_cntn        = module.instance.aws_vpc_cntn
 }
-
 # ----------------------------------
 # Execute the storage module
 # ----------------------------------
@@ -66,4 +65,17 @@ module "storage" {
   project    = var.project
   region     = var.region
   enviroment = var.enviroment
+}
+
+# ----------------------------------
+# Execute the database module
+# ----------------------------------
+module "database" {
+  source               = "./modules/database"
+  rds_db_name          = var.rds_db_name
+  rds_username         = var.rds_username
+  rds_password         = var.rds_password
+  aws_private_subnet_a = module.instance.aws_private_subnet_a
+  aws_private_subnet_b = module.instance.aws_private_subnet_b
+  security_group_db    = module.network.security_group_db
 }

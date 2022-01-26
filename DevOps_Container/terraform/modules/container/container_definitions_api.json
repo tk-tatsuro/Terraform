@@ -1,20 +1,20 @@
 [
   {
     "name": "api",
-    "image": "************.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest",
+    "image": "449357945321.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "/ecs/django-api",
+        "awslogs-group": "/ecs/api",
         "awslogs-region": "ap-northeast-1",
         "awslogs-stream-prefix": "django-api-log-stream"
       }
     },
     "portMappings": [
       {
-        "containerPort": 80,
+        "containerPort": 8000,
         "protocol": "tcp",
-        "hostPort": 80
+        "hostPort": 8000
       }
     ]
   }

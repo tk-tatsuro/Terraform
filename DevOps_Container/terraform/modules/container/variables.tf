@@ -3,13 +3,13 @@
 # ----------------------------------
 variable "alb_target_group" {
 }
-variable "alb_security_group_api" {
+variable "security_group_api" {
 }
-variable "alb_security_group_alb" {
+variable "security_group_alb" {
 }
-variable "aws_subnet_a" {
+variable "aws_public_subnet_a" {
 }
-variable "aws_subnet_b" {
+variable "aws_public_subnet_b" {
 }
 variable "aws_vpc_cntn" {
 }

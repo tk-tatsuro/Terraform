@@ -30,10 +30,6 @@ resource "aws_s3_bucket_policy" "alb_log" {
 }
 
 
-
-
-
-
 # ----------------------------------
 # Exist Storage
 # S3 private bucket2 for source
@@ -138,7 +134,6 @@ resource "aws_s3_bucket_public_access_block" "s3-private-bucket3" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-
 
 
 # ----------------------------------

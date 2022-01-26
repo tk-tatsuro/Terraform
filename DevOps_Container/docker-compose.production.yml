@@ -1,16 +1,15 @@
 version: '3'
 services:
   api:
-    image: ************.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest
+    image: 449357945321.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest
     logging:
       driver: awslogs
       options:
         awslogs-group: /ecs/api
         awslogs-region: ap-northeast-1
         awslogs-stream-prefix: api
-
   nginx:
-    image: ************.dkr.ecr.ap-northeast-1.amazonaws.com/nginx:latest
+    image: 449357945321.dkr.ecr.ap-northeast-1.amazonaws.com/nginx:latest
     logging:
       driver: awslogs
       options:

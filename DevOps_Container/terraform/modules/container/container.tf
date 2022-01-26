@@ -39,50 +39,52 @@ resource "aws_iam_policy_attachment" "ecs_task_execution" {
 resource "aws_iam_role_policy" "role_policy_ecs_task_execution" {
   name = "role_policy_ecs_task_execution"
   role = aws_iam_role.ecs_task_execution.id
-  policy = <<-EOF
+
+  policy = <<-EOF 
 {
     "Version": "2012-10-17",
     "Statement": [
         {
-          "Effect": "Allow",
-          "Action": [
-            "secretsmanager:GetSecretValue",
-            "kms:Decrypt"
-          ],
-          "Resource": [
-            "arn:aws:secretsmanager:ap-northeast-1:449357945321:secret:<secret_name>",
-            "arn:aws:kms:ap-northeast-1:449357945321:key/<key_id>"
-          ]
+            "Effect": "Allow",
+            "Action": ["ecs:*", "ecr:*"],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "*"
         }
     ]
 }
   EOF
 }
 
-#----------------------------------
-# VPC Endpoint
-# ----------------------------------
+
 resource "aws_vpc_endpoint" "ecr_api" {
-  service_name        = "com.amazonaws.ap-northeast-1.ecr.api"
-  vpc_endpoint_type   = "Interface"
-  vpc_id              = var.aws_vpc_cntn
-  subnet_ids          = [
-    "${var.aws_subnet_a}",
-    "${var.aws_subnet_b}"
+  service_name      = "com.amazonaws.ap-northeast-1.ecr.api"
+  vpc_endpoint_type = "Interface"
+  vpc_id            = var.aws_vpc_cntn
+  subnet_ids        = [var.aws_public_subnet_a, var.aws_public_subnet_b]
+  security_group_ids = [
+    var.security_group_api,
   ]
-  security_group_ids  = [var.alb_security_group_api]
   private_dns_enabled = true
+  tags = {
+    "Name" = "ecr-api"
+  }
 }
-resource "aws_vpc_endpoint" "dkr_ecr" {
-  service_name        = "com.amazonaws.ap-northeast-1.dkr.ecr"
-  vpc_endpoint_type   = "Interface"
-  vpc_id              = var.aws_vpc_cntn
-  subnet_ids          = [
-    "${var.aws_subnet_a}",
-    "${var.aws_subnet_b}"
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  service_name      = "com.amazonaws.ap-northeast-1.ecr.dkr"
+  vpc_endpoint_type = "Interface"
+  vpc_id            = var.aws_vpc_cntn
+  subnet_ids        = [var.aws_public_subnet_a, var.aws_public_subnet_b]
+  security_group_ids = [
+    var.security_group_api,
   ]
-  security_group_ids  = [var.alb_security_group_api]
   private_dns_enabled = true
+  tags = {
+    "Name" = "ecr-dkr"
+  }
 }
 
 
@@ -129,11 +131,11 @@ resource "aws_ecs_service" "ecs_service" {
   
   network_configuration {
     security_groups  = [
-      "${var.alb_security_group_api}"
+      "${var.security_group_api}"
     ]
     subnets = [
-      "${var.aws_subnet_a}",
-      "${var.aws_subnet_b}",
+      "${var.aws_public_subnet_a}",
+      "${var.aws_public_subnet_b}",
     ]
     assign_public_ip = true
   }
@@ -178,17 +180,17 @@ resource "aws_ecs_service" "ecs_service_api" {
   
   network_configuration {
     security_groups  = [
-      "${var.alb_security_group_api}"
+      "${var.security_group_api}"
     ]
     subnets = [
-      "${var.aws_subnet_a}",
-      "${var.aws_subnet_b}",
+      "${var.aws_public_subnet_a}",
+      "${var.aws_public_subnet_b}",
     ]
     assign_public_ip = true
   }
   load_balancer {
     target_group_arn = var.alb_target_group
     container_name   = "api"
-    container_port   = "80"
+    container_port   = "8000"
   }
 }

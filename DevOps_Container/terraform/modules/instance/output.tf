@@ -5,12 +5,20 @@ output "aws_vpc_cntn" {
     value = aws_vpc.archetype.id
     sensitive = true
 }
-output "aws_subnet_a" {
-    value = aws_subnet.api_a.id
+output "aws_public_subnet_a" {
+    value = aws_subnet.public_subnet_api_a.id
     sensitive = true
 }
-output "aws_subnet_b" {
-    value = aws_subnet.api_b.id
+output "aws_public_subnet_b" {
+    value = aws_subnet.public_subnet_api_b.id
+    sensitive = true
+}
+output "aws_private_subnet_a" {
+    value = aws_subnet.private_subnet_db_a.id
+    sensitive = true
+}
+output "aws_private_subnet_b" {
+    value = aws_subnet.private_subnet_db_b.id
     sensitive = true
 }
 output "aws_vpc_cidr_block" {
