@@ -1,7 +1,7 @@
 [
   {
     "name": "api",
-    "image": "449357945321.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest",
+    "image": "************.dkr.ecr.ap-northeast-1.amazonaws.com/api:latest",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
